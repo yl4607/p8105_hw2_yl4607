@@ -122,14 +122,55 @@ pols_df =
   separate(mon, c("year","month","date"), "-") %>% 
   mutate(month = as.numeric(month)) %>% 
   mutate(month = month.name[month]) %>% 
-  select(-date) 
+  select(-date) %>% 
 
-pols_df %>% 
-    pivot_longer(
+  pivot_longer(
     starts_with("prez_"),
     names_to = "president",
     names_prefix = "prez_",
-    values_to = "indicator")
-    
+    values_to = "indicator") %>% 
+  
+  mutate(indicator = as.factor(indicator)) %>% 
+  mutate(indicator = recode(indicator, '1' = "yes", '0' = "no"))
 ```
+
+**Read the snp dataset**
+
+```{r}
+snp_df = 
+  read_csv("./data/fivethirtyeight_datasets/snp.csv") %>% 
+  separate(date, c("month","date","year"), "/") %>% 
+  mutate(month = as.numeric(month)) %>% 
+  mutate(month = month.name[month]) %>% 
+  select(-date) %>% 
+  relocate(year, month)
+```
+
+**Read the unemployment dataset**
+
+```{r}
+unemployment_df = 
+  read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>% 
+  janitor::clean_names() %>% 
+
+  pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "unemployment_percentage")
+```
+  
+```{r}
+month_df_2 = 
+  tibble(
+    month =  c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"),
+    month_name = month.name
+  )
+
+unemployment_df =
+  left_join(unemployment_df, month_df_2, by = "month") %>% 
+  select(-month) %>% 
+  rename(month = month_name) %>% 
+  relocate(year, month, unemployment_percentage)
+```
+
 
