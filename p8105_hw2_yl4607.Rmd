@@ -11,7 +11,7 @@ library(readxl)
 
 ## Problem 1
 
-Read the Mr. Trashwheel dataset.
+**Read the Mr. Trashwheel dataset**
 
 ```{r}
 trashwheel_df = 
@@ -28,7 +28,7 @@ trashwheel_df =
 
 ```
 
-Read preciptation data for 2018 and 2017.
+**Read preciptation data for 2018 and 2017**
 
 ```{r}
 precip_2018 = 
@@ -54,7 +54,7 @@ precip_2017 =
   relocate(year)
 ```
 
-Combine annual precipitation.
+**Combine annual precipitation**
 
 ```{r}
 month_df = 
@@ -69,4 +69,46 @@ precip_df =
 left_join(precip_df, month_df, by = "month")
 ```
 
-This dataset contains information from the Mr.Trashwheel trash collector in Baltimore, Maryland. As trash enters the inner harbor, the trashwheel collects that trash, and stores it iin a dumpster. The dataset contains information on year, month, and trash collected, include some specific kinds of trash. There are a total `r nrow(trashwheel_df)` rows in our final dataset. Additional data sheets include month precipitation data.
+This dataset contains information from the Mr.Trashwheel trash collector in Baltimore, Maryland. As trash enters the inner harbor, the trashwheel collects that trash, and stores it iin a dumpster. The dataset contains information on year, month, and trash collected, include some specific kinds of trash. There are a total `r nrow(trashwheel_df)` rows in our final dataset. From the dataset, we can know that there are `r filter(trashwheel_df, year == 2017) %>% select(sports_balls) %>% sum()` sports balls among the total `r filter(trashwheel_df, year == 2017) %>% select(weight_tons) %>% sum()` tons of trash being collected in 2017.
+
+Additional data sheets include month precipitation data. According to the data, the total precipitation in 2017 was `r select(precip_2017, col = 3) %>% sum()`, and the total precipitatioh in 2018 was also `r select(precip_2018, col = 3) %>% sum()`. 
+
+## Problem 2
+
+**Read the NYC Transit Entrance and Exit dataset**
+
+```{r}
+transit_df = 
+  read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
+  janitor::clean_names() %>% 
+  select(line, station_name, station_latitude, station_longitude, contains("route"), entry, vending, entrance_type, ada) %>% 
+  mutate(entry = recode(entry, 'YES' = TRUE, 'NO' = FALSE)) %>% 
+  mutate(route8 = as.factor(route8)) %>% 
+  mutate(route9 = as.factor(route9)) %>% 
+  mutate(route10 = as.factor(route10)) %>% 
+  mutate(route11 = as.factor(route11))
+```
+
+The current dataset contains `r ncol(transit_df)` variables: line, station, name, station latitude, station longitude, routes served (1 - 11), entry, vending, entrance type, and ADA compliance. I have cleaned the variable names to let the names only consist "_", numbers, and letters. I have also converted the entry variable from character to a logical variable and the route variables to factor variables. The dimension for this dataset is `r nrow(transit_df)` rowa x `r ncol(transit_df)` columns. I don't think these data are tidy enough, since I find the dataset is hard to read with a lot of NA values present in the route columns. 
+
+There are `r distinct(transit_df) %>% nrow()` distinct stations.
+`r filter(transit_df,ada == TRUE) %>% nrow()`stations are ADA compliant.
+There are `r filter(transit_df,vending =="NO") %>% nrow()` station entrances/exits without vending allow entrance, which is `r 183/1868 * 100`% of the total stations. 
+
+**Create distinct variables: route number and route name**
+
+```{r}
+transit_df_tidy = 
+  transit_df %>% 
+    pivot_longer(
+    route1:route11,
+    names_to = "route_number",
+    names_prefix = "route",
+    values_to = "route_name") %>% 
+  drop_na()
+```
+
+There are `r filter(transit_df_tidy, route_name =="A") %>% distinct() %>% nrow()` distinct stations serve the A train.
+Among the distinct stations that serve A train, `r filter(transit_df_tidy, route_name =="A", ada == TRUE) %>% distinct() %>% nrow()` stations are ADA compliant, and among all the stations that serve A train, `r filter(transit_df_tidy, route_name =="A", ada == TRUE) %>% nrow()` stations are ADA compliant.
+
+
