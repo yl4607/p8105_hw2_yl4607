@@ -89,7 +89,7 @@ transit_df =
   mutate(route11 = as.factor(route11))
 ```
 
-The current dataset contains `r ncol(transit_df)` variables: line, station, name, station latitude, station longitude, routes served (1 - 11), entry, vending, entrance type, and ADA compliance. I have cleaned the variable names to let the names only consist "_", numbers, and letters. I have also converted the entry variable from character to a logical variable and the route variables to factor variables. The dimension for this dataset is `r nrow(transit_df)` rowa x `r ncol(transit_df)` columns. I don't think these data are tidy enough, since I find the dataset is hard to read with a lot of NA values present in the route columns. 
+The current dataset contains `r ncol(transit_df)` variables: line, station, name, station latitude, station longitude, routes served (1 - 11), entry, vending, entrance type, and ADA compliance. I have cleaned the variable names to let the names only consist "_", numbers, and letters. I have also converted the entry variable from character to a logical variable and the route variables to factor variables. The dimension for this dataset is `r nrow(transit_df)` rows x `r ncol(transit_df)` columns. I don't think these data are tidy enough, since I find the dataset is hard to read with a lot of NA values present in the route columns. 
 
 There are `r distinct(transit_df) %>% nrow()` distinct stations.
 `r filter(transit_df,ada == TRUE) %>% nrow()`stations are ADA compliant.
@@ -111,4 +111,25 @@ transit_df_tidy =
 There are `r filter(transit_df_tidy, route_name =="A") %>% distinct() %>% nrow()` distinct stations serve the A train.
 Among the distinct stations that serve A train, `r filter(transit_df_tidy, route_name =="A", ada == TRUE) %>% distinct() %>% nrow()` stations are ADA compliant, and among all the stations that serve A train, `r filter(transit_df_tidy, route_name =="A", ada == TRUE) %>% nrow()` stations are ADA compliant.
 
+
+## Problem 3
+
+**Read the pols_month dataset**
+
+```{r}
+pols_df = 
+  read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
+  separate(mon, c("year","month","date"), "-") %>% 
+  mutate(month = as.numeric(month)) %>% 
+  mutate(month = month.name[month]) %>% 
+  select(-date) 
+
+pols_df %>% 
+    pivot_longer(
+    starts_with("prez_"),
+    names_to = "president",
+    names_prefix = "prez_",
+    values_to = "indicator")
+    
+```
 
