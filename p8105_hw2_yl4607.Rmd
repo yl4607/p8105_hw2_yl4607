@@ -92,8 +92,8 @@ transit_df =
 The current dataset contains `r ncol(transit_df)` variables: line, station, name, station latitude, station longitude, routes served (1 - 11), entry, vending, entrance type, and ADA compliance. I have cleaned the variable names to let the names only consist "_", numbers, and letters. I have also converted the entry variable from character to a logical variable and the route variables to factor variables. The dimension for this dataset is `r nrow(transit_df)` rows x `r ncol(transit_df)` columns. I don't think these data are tidy enough, since I find the dataset is hard to read with a lot of NA values present in the route columns. 
 
 There are `r distinct(transit_df) %>% nrow()` distinct stations.
-`r filter(transit_df,ada == TRUE) %>% nrow()`stations are ADA compliant.
-There are `r filter(transit_df,vending =="NO") %>% nrow()` station entrances/exits without vending allow entrance, which is `r 183/1868 * 100`% of the total stations. 
+`r filter(transit_df,ada == TRUE) %>% nrow()` stations are ADA compliant.
+There are `r filter(transit_df,vending =="NO") %>% filter(entry == TRUE) %>% nrow()` station entrances/exits without vending allow entrance and `r filter(transit_df,vending =="NO") %>% nrow()` station entrances / exits without vending. Therefore the proportion of station entrances/exits allow entrance among all the station entrances/exits that do not hace vending is `r 69 / 183 * 100` %. 
 
 **Create distinct variables: route number and route name**
 
